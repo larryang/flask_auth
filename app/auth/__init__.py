@@ -1,19 +1,19 @@
+""" implement user authorization/login routes """
+from flask import current_app
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.auth.decorators import admin_required
-from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash
+from flask_login import login_user, login_required, logout_user, current_user
+from app.auth.decorators import admin_required
 from app.auth.forms import login_form, register_form, profile_form, security_form, user_edit_form
 from app.db import db
 from app.db.models import User
 
 auth = Blueprint('auth', __name__, template_folder='templates')
-from flask import current_app
-
-
 
 
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
+    """ login route """
     form = login_form()
     if current_user.is_authenticated:
         return redirect(url_for('auth.dashboard'))
@@ -34,6 +34,7 @@ def login():
 
 @auth.route('/register', methods=['POST', 'GET'])
 def register():
+    """ register route """
     if current_user.is_authenticated:
         return redirect(url_for('auth.dashboard'))
     form = register_form()
@@ -58,13 +59,14 @@ def register():
 @auth.route('/dashboard')
 @login_required
 def dashboard():
+    """ dashboard route """
     return render_template('dashboard.html')
 
 
 @auth.route("/logout")
 @login_required
 def logout():
-    """Logout the current user."""
+    """ Logout the current user """
     user = current_user
     user.authenticated = False
     db.session.add(user)
@@ -77,6 +79,7 @@ def logout():
 @login_required
 @admin_required
 def browse_users():
+    """ Browse users route """
     data = User.query.all()
     titles = [('email', 'Email'), ('registered_on', 'Registered On')]
     retrieve_url = ('auth.retrieve_user', [('user_id', ':id')])
@@ -93,6 +96,7 @@ def browse_users():
 @auth.route('/users/<int:user_id>')
 @login_required
 def retrieve_user(user_id):
+    """ Retreive user route """
     user = User.query.get(user_id)
     return render_template('profile_view.html', user=user)
 
@@ -100,6 +104,7 @@ def retrieve_user(user_id):
 @auth.route('/users/<int:user_id>/edit', methods=['POST', 'GET'])
 @login_required
 def edit_user(user_id):
+    """ Edit user route """
     user = User.query.get(user_id)
     form = user_edit_form(obj=user)
     if form.validate_on_submit():
@@ -115,6 +120,7 @@ def edit_user(user_id):
 @auth.route('/users/new', methods=['POST', 'GET'])
 @login_required
 def add_user():
+    """ Add user route """
     form = register_form()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -133,6 +139,7 @@ def add_user():
 @auth.route('/users/<int:user_id>/delete', methods=['POST'])
 @login_required
 def delete_user(user_id):
+    """ Delete user route """
     user = User.query.get(user_id)
     if user.id == current_user.id:
         flash("You can't delete yourself!")
@@ -145,6 +152,7 @@ def delete_user(user_id):
 
 @auth.route('/profile', methods=['POST', 'GET'])
 def edit_profile():
+    """ Edit user profile route """
     user = User.query.get(current_user.get_id())
     form = profile_form(obj=user)
     if form.validate_on_submit():
@@ -158,6 +166,7 @@ def edit_profile():
 
 @auth.route('/account', methods=['POST', 'GET'])
 def edit_account():
+    """ Edit user account route """
     user = User.query.get(current_user.get_id())
     form = security_form(obj=user)
     if form.validate_on_submit():
@@ -168,5 +177,3 @@ def edit_account():
         flash('You Successfully Updated your Password or Email', 'success')
         return redirect(url_for('auth.dashboard'))
     return render_template('manage_account.html', form=form)
-
-
