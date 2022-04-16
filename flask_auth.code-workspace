@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"coveragerc",
+			"dyno",
+			"pylint",
+			"pylintrc",
+			"pytest",
+			"werkzeug"
+		]
+	}
+}
