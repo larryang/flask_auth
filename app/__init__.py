@@ -1,14 +1,11 @@
 """A simple flask web app"""
 import os
-import datetime
 import time
-import logging
 import flask_login
 
 from flask import g, request
 from flask import render_template, Flask
 from flask.logging import default_handler
-from rfc3339 import rfc3339
 from flask_bootstrap import Bootstrap5
 from flask_wtf.csrf import CSRFProtect
 from app.auth import auth
@@ -18,13 +15,13 @@ from app.db import db
 from app.db.models import User
 from app.exceptions import http_exceptions
 from app.simple_pages import simple_pages
-from applog import RequestLoggerFormatter
+from applog import LogFormat, LoggingHandler, TimeCalc
 
 
 login_manager = flask_login.LoginManager()
 
 
-def page_not_found(e):
+def page_not_found(e): # pylint: disable=unused-argument,invalid-name
     """ implement 404 error handler """
     return render_template("404.html"), 404
 
@@ -35,8 +32,8 @@ def create_app():
     app.secret_key = 'This is an INSECURE secret!! DO NOT use this in production!!'
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
-    csrf = CSRFProtect(app)
-    bootstrap = Bootstrap5(app)
+    csrf = CSRFProtect(app) # pylint: disable=unused-variable
+    bootstrap = Bootstrap5(app) # pylint: disable=unused-variable
     app.register_blueprint(simple_pages)
     app.register_blueprint(auth)
     app.context_processor(utility_text_processors)
@@ -51,30 +48,16 @@ def create_app():
     app.cli.add_command(create_database)
 
     # Deactivate the default flask logger so that log messages don't get duplicated
-    app.logger.removeHandler(default_handler)
+    app.logger.removeHandler(default_handler) # pylint: disable=no-member
 
-    # get root directory of project
-    root = os.path.dirname(os.path.abspath(__file__))
-    # set the name of the apps log folder to logs
-    logdir = os.path.join(root, 'logs')
-    # make a directory if it doesn't exist
-    if not os.path.exists(logdir):
-        os.mkdir(logdir)
-    # set name of the log file
-    log_file = os.path.join(logdir, 'info.log')
+    # construct path to logging directory
+    logdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
 
-    handler = logging.FileHandler(log_file)
-    # Create a log file formatter object to create the entry in the log, CSV-style
-    formatter = RequestLoggerFormatter(
-        '%(levelname)s,%(asctime)s,%(module)s,%(message)s,%(remote_addr)s,%(url)s\n'
-        '%(request_path)s,%(ip)s,%(host)s,%(args)s'
-    )
-    # set the formatter for the log entry
-    handler.setFormatter(formatter)
-    # Set the logging level of the file handler object so that it logs INFO and up
-    handler.setLevel(logging.INFO)
+    # create logger handler and configure it
+    handler = LoggingHandler.create(logdir, 'info.log')
+
     # Add the handler for the log entry
-    app.logger.addHandler(handler)
+    app.logger.addHandler(handler) # pylint: disable=no-member
 
     @app.before_request
     def start_timer():
@@ -89,37 +72,16 @@ def create_app():
         elif request.path.startswith('/bootstrap'):
             return response
 
-        now = time.time()
-        duration = round(now - g.start, 2)
-        dt = datetime.datetime.fromtimestamp(now)
-        timestamp = rfc3339(dt, utc=True)
+        timestamp, duration = TimeCalc.calc(g.start)
 
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        host = request.host.split(':', 1)[0]
-        args = dict(request.args)
-
+        # use log handler and add extra parameters
         log_params = [
-            ('method', request.method),
-            ('path', request.path),
             ('status', response.status_code),
             ('duration', duration),
             ('time', timestamp),
-            ('ip', ip),
-            ('host', host),
-            ('params', args)
         ]
-
-        request_id = request.headers.get('X-Request-ID')
-        if request_id:
-            log_params.append(('request_id', request_id))
-
-        parts = []
-        for name, value in log_params:
-            part = name + ': ' + str(value) + ', '
-            parts.append(part)
-        line = " ".join(parts)
-        #this triggers a log entry to be created with whatever is in the line variable
-        app.logger.info(line)
+        line = LogFormat.print_log_params(log_params)
+        app.logger.info(line) # pylint: disable=no-member
 
         return response
 
@@ -131,5 +93,5 @@ def user_loader(user_id):
     """ get user info from model """
     try:
         return User.query.get(int(user_id))
-    except:
+    except: # pylint: disable=bare-except
         return None
