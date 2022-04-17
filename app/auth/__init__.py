@@ -1,6 +1,11 @@
 """ implement user authorization/login routes """
 from flask import current_app
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+<<<<<<< HEAD
+=======
+from app.auth.decorators import admin_required
+from flask_login import login_user, login_required, logout_user, current_user
+>>>>>>> kaw393939/logging
 from werkzeug.security import generate_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from app.auth.decorators import admin_required
@@ -79,7 +84,10 @@ def logout():
 @login_required
 @admin_required
 def browse_users():
+<<<<<<< HEAD
     """ Browse users route """
+=======
+>>>>>>> kaw393939/logging
     data = User.query.all()
     titles = [('email', 'Email'), ('registered_on', 'Registered On')]
     retrieve_url = ('auth.retrieve_user', [('user_id', ':id')])
