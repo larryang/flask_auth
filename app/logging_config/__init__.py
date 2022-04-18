@@ -1,3 +1,4 @@
+""" logging configuration file """
 import logging
 from logging.config import dictConfig
 
@@ -11,6 +12,7 @@ log_con = flask.Blueprint('log_con', __name__)
 
 @log_con.before_app_request
 def before_request_logging():
+    """ log to default logger under flask module """
     current_app.logger.info("Before Request")
     log = logging.getLogger("myApp")
     log.info("My App Logger")
@@ -18,6 +20,7 @@ def before_request_logging():
 
 @log_con.after_app_request
 def after_request_logging(response):
+    """ log after request to flask.log and myapp.log """
     if request.path == '/favicon.ico':
         return response
     elif request.path.startswith('/static'):
@@ -33,13 +36,20 @@ def after_request_logging(response):
 
 @log_con.before_app_first_request
 def configure_logging():
+    """ before app startup logging config """
     logging.config.dictConfig(LOGGING_CONFIG)
+
+    # log to logfile misc_debug.log
+    log = logging.getLogger("misc_debug")
+    log.debug("Just configured logging from LOGGING_CONFIG")
+
+    # log to logfile myapp.log
     log = logging.getLogger("myApp")
-    log.info("My App Logger")
+    log.info("Before app first request")
+    
+    # log to logfile errors.log
     log = logging.getLogger("myerrors")
-    log.info("THis broke")
-
-
+    log.info("Before app first request")
 
 
 LOGGING_CONFIG = {
@@ -104,6 +114,14 @@ LOGGING_CONFIG = {
             'maxBytes': 10000000,
             'backupCount': 5,
         },
+        'file.handler.misc_debug': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'standard',
+            'filename': 'app/logs/misc_debug.log',
+            'maxBytes': 10000000,
+            'backupCount': 5,
+        },
     },
     'loggers': {
         '': {  # root logger
@@ -136,6 +154,11 @@ LOGGING_CONFIG = {
             'level': 'DEBUG',
             'propagate': False
         },
+        'misc_debug': {
+            'handlers': ['file.handler.misc_debug'],
+            'level': 'DEBUG',
+            'propagate': False
+        }
 
     }
 }
