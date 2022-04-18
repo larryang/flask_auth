@@ -6,5 +6,5 @@
 __pycache__
 .coverage
 .bash_history
-app/logs/
+app/logs/*.log
  
