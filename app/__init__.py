@@ -16,7 +16,6 @@ from app.db.models import User
 from app.error_handlers import error_handlers
 from app.logging_config import log_con
 from app.simple_pages import simple_pages
-from app import create_log_folder
 
 login_manager = flask_login.LoginManager()
 
@@ -44,6 +43,7 @@ def create_app():
     app.register_blueprint(auth)
 
     # these load functionality without a web interface
+    create_log_folder # pylint: disable=pointless-statement
     app.register_blueprint(log_con)
     app.register_blueprint(error_handlers)
     app.context_processor(utility_text_processors)
@@ -52,7 +52,6 @@ def create_app():
     app.cli.add_command(create_log_folder)
 
     # Run once at startup:
-    create_log_folder # pylint: disable=pointless-statement
     db.init_app(app)
 
     return app
