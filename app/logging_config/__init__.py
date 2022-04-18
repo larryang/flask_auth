@@ -12,22 +12,32 @@ log_con = flask.Blueprint('log_con', __name__)
 
 @log_con.before_app_request
 def before_request_logging():
-    """ log to default logger under flask module """
-    current_app.logger.info("Before Request")
+    """ log before request """
+
+    # log to request.log
+    log = logging.getLogger("request")
+    log.info("Before Request")
+
+    # log to myapp.log
     log = logging.getLogger("myApp")
     log.info("My App Logger")
 
 
 @log_con.after_app_request
 def after_request_logging(response):
-    """ log after request to flask.log and myapp.log """
+    """ log after request to request.log and myapp.log """
+    
+    # skip logging for below 
     if request.path == '/favicon.ico':
         return response
     elif request.path.startswith('/static'):
         return response
     elif request.path.startswith('/bootstrap'):
         return response
-    current_app.logger.info("After Request")
+
+    # log to request.log
+    log = logging.getLogger("request")
+    log.info("After Request")
 
     log = logging.getLogger("myApp")
     log.info("My App Logger")
@@ -158,7 +168,11 @@ LOGGING_CONFIG = {
             'handlers': ['file.handler.misc_debug'],
             'level': 'DEBUG',
             'propagate': False
+        },
+        'request': {
+            'handlers': ['file.handler.request'],
+            'level': 'INFO',
+            'propagate': False
         }
-
     }
 }
