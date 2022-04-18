@@ -9,6 +9,7 @@ from app.db import db
 @click.command(name='create-db')
 @with_appcontext
 def create_database():
+    """ create database directory """
     # get root directory of project
     root = os.path.dirname(os.path.abspath(__file__))
     # set the name of the apps log folder to logs
@@ -22,6 +23,7 @@ def create_database():
 @click.command(name='create-log-folder')
 @with_appcontext
 def create_log_folder():
+    """ create log directory """
     # get root directory of project
     root = os.path.dirname(os.path.abspath(__file__))
     # set the name of the apps log folder to logs
