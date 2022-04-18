@@ -16,6 +16,7 @@ from app.db.models import User
 from app.error_handlers import error_handlers
 from app.logging_config import log_con
 from app.simple_pages import simple_pages
+from app import create_log_folder
 
 login_manager = flask_login.LoginManager()
 
@@ -49,8 +50,10 @@ def create_app():
     # add command function to cli commands
     app.cli.add_command(create_database)
     app.cli.add_command(create_log_folder)
-    db.init_app(app)
+
     # Run once at startup:
+    create_log_folder # pylint: disable=pointless-statement
+    db.init_app(app)
 
     return app
 
