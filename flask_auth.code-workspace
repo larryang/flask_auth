@@ -6,14 +6,17 @@
 	],
 	"settings": {
 		"cSpell.words": [
+			"asctime",
 			"coveragerc",
 			"dbdir",
 			"dyno",
+			"levelname",
 			"myapp",
 			"myerrors",
 			"pylint",
 			"pylintrc",
 			"pytest",
+			"sqlalchemy",
 			"werkzeug"
 		]
 	}
