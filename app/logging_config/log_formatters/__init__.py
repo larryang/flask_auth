@@ -1,13 +1,9 @@
-""" Logger Formatters """
 import logging
 from flask import has_request_context, request
 
 
 class RequestFormatter(logging.Formatter):
-    """ derived Formatter """
-
     def format(self, record):
-        """ override """
         if has_request_context():
             record.url = request.url
             record.remote_addr = request.remote_addr
