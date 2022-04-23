@@ -13,6 +13,7 @@
 			"levelname",
 			"myapp",
 			"myerrors",
+			"myuser",
 			"pylint",
 			"pylintrc",
 			"pytest",
