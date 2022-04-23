@@ -5,8 +5,9 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.db import db
 from flask_login import UserMixin
+from sqlalchemy_serializer import SerializerMixin
 
-class Song(db.Model):
+class Song(db.Model,SerializerMixin):
     __tablename__ = 'songs'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(300), nullable=True, unique=False)
@@ -18,8 +19,11 @@ class Song(db.Model):
         self.title = title
         self.artist = artist
 
-class Location(db.Model):
+class Location(db.Model, SerializerMixin):
     __tablename__ = 'locations'
+    serialize_only = ('title', 'longitude', 'latitude')
+
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(300), nullable=True, unique=False)
     longitude = db.Column(db.String(300), nullable=True, unique=False)
@@ -34,11 +38,20 @@ class Location(db.Model):
         self.latitude = latitude
         self.population = population
 
+    def serialize(self):
+        return {
+            'title': self.title,
+            'long': self.longitude,
+            'lat': self.latitude,
+            'population': self.population,
+        }
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(300), nullable=False, unique=True)
+    password = db.Column(db.String(300), nullable=False)
     about = db.Column(db.String(300), nullable=True, unique=False)
     authenticated = db.Column(db.Boolean, default=False)
     registered_on = db.Column('registered_on', db.DateTime)
