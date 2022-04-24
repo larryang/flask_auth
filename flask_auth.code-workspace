@@ -18,7 +18,8 @@
 			"pylintrc",
 			"pytest",
 			"sqlalchemy",
-			"werkzeug"
+			"werkzeug",
+			"wtforms"
 		]
 	}
 }
