@@ -13,11 +13,13 @@
 			"levelname",
 			"myapp",
 			"myerrors",
+			"myuser",
 			"pylint",
 			"pylintrc",
 			"pytest",
 			"sqlalchemy",
-			"werkzeug"
+			"werkzeug",
+			"wtforms"
 		]
 	}
 }
