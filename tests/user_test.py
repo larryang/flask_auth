@@ -25,19 +25,6 @@ def test_adding_user(application):
         log.info(user)
         #asserting that the user retrieved is correct
         assert user.email == 'keith@webizly.com'
-        #this is how you get a related record ready for insert
-        user.songs = [Song("test", "artist1"), Song("test2", "artist2")]
-        #commit is what saves the songs
-        db.session.commit() # pylint: disable=no-member
-        assert db.session.query(Song).count() == 2 # pylint: disable=no-member
-        song1 = Song.query.filter_by(title='test').first()
-        assert song1.title == "test"
-        #changing the title of the song
-        song1.title = "SuperSongTitle"
-        #saving the new title of the song
-        db.session.commit() # pylint: disable=no-member
-        song2 = Song.query.filter_by(title='SuperSongTitle').first()
-        assert song2.title == "SuperSongTitle"
         #checking cascade delete
         db.session.delete(user) # pylint: disable=no-member
         assert db.session.query(User).count() == 0 # pylint: disable=no-member
