@@ -2,6 +2,7 @@
 # pylint: disable=redefined-outer-name
 import os
 import pytest
+from flask_login import FlaskLoginClient
 from app import create_app, User
 from app.db import db
 
@@ -18,6 +19,8 @@ def application():
     os.environ['FLASK_ENV'] = 'testing'
 
     application = create_app()
+    application.test_client_class = FlaskLoginClient
+    application.config['WTF_CSRF_ENABLED'] = False
 
     with application.app_context():
         db.create_all()

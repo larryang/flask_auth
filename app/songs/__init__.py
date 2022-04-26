@@ -30,10 +30,10 @@ def songs_browse(page):
 @login_required
 def songs_upload():
     """ use form to upload song list CSV """
+    log = logging.getLogger("upload_songs")
     form = csv_upload()
-    if form.validate_on_submit():
-        log = logging.getLogger("upload_songs")
 
+    if form.validate_on_submit():
         filename = secure_filename(form.file.data.filename)
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         form.file.data.save(filepath)
@@ -56,6 +56,8 @@ def songs_upload():
         db.session.commit()
 
         return redirect(url_for('songs.songs_browse'))
+    else:
+        log.info("form failed validation")
 
     try:
         return render_template('upload.html', form=form)
