@@ -35,7 +35,7 @@ def after_request_logging(response):
     # log to request.log
     log = logging.getLogger("request")
     log.info('Response status:' +
-        response.status + response.get_data(as_text=True))
+        response.status)
 
     log = logging.getLogger("myApp")
     log.info("My App Logger")

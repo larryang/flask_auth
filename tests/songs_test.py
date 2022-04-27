@@ -28,7 +28,7 @@ def test_adding_songs(application, add_db_user_fixture):
     assert song2.title == "SuperSongTitle"
 
 
-def test_upload(application, add_db_user_fixture):
+def test_upload_songs(application, add_db_user_fixture):
     """ unit test file upload """
     # pylint: disable=unused-argument,redefined-outer-name
 
