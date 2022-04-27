@@ -42,7 +42,8 @@ def test_upload(application, add_db_user_fixture):
 
     upload_folder = config.Config.UPLOAD_FOLDER
     upload_file = os.path.join(upload_folder, filename)
-    assert not os.path.exists(upload_file)
+    if os.path.exists(upload_file):
+        os.remove(upload_file)
 
     with application.test_client(user=user) as client:
         with open(filepath, 'rb') as file:
