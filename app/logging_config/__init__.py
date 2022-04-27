@@ -1,25 +1,19 @@
 """ logging configuration file """
-import app.config
 import logging
+from logging.config import dictConfig
 import os
 import json
-from logging.config import dictConfig
-
 import flask
 from flask import request, current_app
-
-#from app.logging_config.log_formatters import RequestFormatter
+import app
 from app import config
+
 
 log_con = flask.Blueprint('log_con', __name__)
 
 @log_con.before_app_request
 def before_request_logging():
     """ log before request """
-
-    # log to request.log
-    log = logging.getLogger("request")
-    log.info("Before Request")
 
     # log to myapp.log
     log = logging.getLogger("myApp")
@@ -29,7 +23,7 @@ def before_request_logging():
 @log_con.after_app_request
 def after_request_logging(response):
     """ log after request to request.log and myapp.log """
-    
+
     # skip logging for below 
     if request.path == '/favicon.ico':
         return response
@@ -40,11 +34,13 @@ def after_request_logging(response):
 
     # log to request.log
     log = logging.getLogger("request")
-    log.info("After Request")
+    log.info('Response status:' +
+        response.status + response.get_data(as_text=True))
 
     log = logging.getLogger("myApp")
     log.info("My App Logger")
     return response
+
 
 @log_con.before_app_first_request
 def setup_logs():
