@@ -61,3 +61,32 @@ def test_upload_songs(application, add_db_user_fixture):
 
     assert os.path.exists(upload_file)
     os.remove(upload_file)
+
+
+
+def test_songs_upload_unauthorized(client):
+    """ Route song/upload as unauthorized user """
+
+    # Try GET
+    resp = client.get('songs/upload', follow_redirects=True)
+
+    # should be redirected to login page
+    assert resp.status_code == 200
+    assert b'<h2>Login</h2>' in resp.data
+
+
+    #Try POST
+    root = config.Config.BASE_DIR
+    filename = 'sample.csv'
+    filepath = root + '/../tests/' + filename
+    with open(filepath, 'rb') as file:
+        data = {
+            'file': (file, filename),
+            #'csrf_token': current_
+        }
+        resp = client.post('songs/upload',
+            follow_redirects=True, data=data)
+
+    # should be redirected to login page
+    assert resp.status_code == 200
+    assert b'<h2>Login</h2>' in resp.data
