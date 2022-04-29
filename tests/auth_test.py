@@ -1,5 +1,4 @@
 """This test authorization pages"""
-from flask_login import logout_user
 from app.db.models import User
 from app import db
 from tests.user_fixture import add_db_user_fixture, TEST_EMAIL, TEST_PASSWORD # pylint: disable=unused-import
