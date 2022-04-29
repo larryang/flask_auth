@@ -1,4 +1,5 @@
 """This test authorization pages"""
+from flask_login import logout_user
 from app.db.models import User
 from app import db
 from tests.user_fixture import add_db_user_fixture, TEST_EMAIL, TEST_PASSWORD # pylint: disable=unused-import
@@ -25,6 +26,8 @@ def test_register(client):
     """ POST to /register """
     new_email = 'newuser@test.test'
     new_password = 'Test1234!'
+    assert not User.query.filter_by(email=new_email).first()
+
     data = {
         'email' : new_email,
         'password' : new_password,
@@ -58,7 +61,7 @@ def test_login(client, add_db_user_fixture):
 
 
 def test_dashboard(application, add_db_user_fixture):
-    """ POST to dashboard as logged in user """
+    """ GET to dashboard as logged in user """
     # pylint: disable=redefined-outer-name
     user = add_db_user_fixture
 
@@ -69,3 +72,13 @@ def test_dashboard(application, add_db_user_fixture):
     assert resp.status_code == 200
     assert b'<h2>Dashboard</h2>' in resp.data
     assert b'<p>Welcome: testuser@test.com</p>' in resp.data
+
+
+def test_dashboard_unauthorized(client):
+    """ GET to /dashboard as unauthorized user """
+
+    resp = client.get('dashboard', follow_redirects=True)
+
+    # should be redirected to login page
+    assert resp.status_code == 200
+    assert b'<h2>Login</h2>' in resp.data
