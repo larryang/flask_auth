@@ -1,7 +1,7 @@
 """ test songs model/database """
 import os
 from app import db
-from app.db.models import Song, User
+from app.db.models import Song
 from app import config
 from tests.user_fixture import add_db_user_fixture # pylint: disable=unused-import
 
@@ -22,8 +22,8 @@ def test_adding_songs(application, add_db_user_fixture):
 
     #changing the title of the song
     song1.title = "SuperSongTitle"
-    #saving the new title of the song
     db.session.commit() # pylint: disable=no-member
+
     song2 = Song.query.filter_by(title='SuperSongTitle').first()
     assert song2.title == "SuperSongTitle"
 
@@ -38,7 +38,7 @@ def test_upload_songs(application, add_db_user_fixture):
     root = config.Config.BASE_DIR
     filename = 'sample.csv'
     filepath = root + '/../tests/' + filename
-    user = User.query.get(1) # shortcut, fixture only has 1 user
+    user = add_db_user_fixture
 
     upload_folder = config.Config.UPLOAD_FOLDER
     upload_file = os.path.join(upload_folder, filename)

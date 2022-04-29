@@ -1,7 +1,7 @@
 """This test authorization pages"""
 from app.db.models import User
 from app import db
-from tests.user_fixture import add_db_user_fixture # pylint: disable=unused-import
+from tests.user_fixture import add_db_user_fixture, TEST_EMAIL, TEST_PASSWORD # pylint: disable=unused-import
 
 
 def test_request_main_menu_links(client):
@@ -43,10 +43,15 @@ def test_register(client):
 
 def test_login(client, add_db_user_fixture):
     """ POST to login """
-    data = {
-        'email' : 'testuser@test.com',
-        'password' : 'testtest'
-    }
-    resp = client.post('login', data=data)
+    # pylint: disable=unused-argument,redefined-outer-name
 
-    assert resp.status_code == 302
+    data = {
+        'email' : TEST_EMAIL,
+        'password' : TEST_PASSWORD
+    }
+    resp = client.post('login', follow_redirects=True,
+            data=data)
+
+    # if login, redirect to /dashboard
+    assert resp.status_code == 200
+    assert b'<h2>Dashboard</h2>' in resp.data
