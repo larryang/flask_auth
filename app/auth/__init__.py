@@ -1,12 +1,13 @@
 """ implement user authorization/login routes """
-from flask import Blueprint, render_template, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, current_app, abort
 from flask_login import login_user, login_required, logout_user, current_user
+from jinja2 import TemplateNotFound
 from werkzeug.security import generate_password_hash
 
 from app.auth.decorators import admin_required
 from app.auth.forms import login_form, register_form, profile_form, security_form, user_edit_form
 from app.db import db
-from app.db.models import User
+from app.db.models import User, Song
 
 auth = Blueprint('auth', __name__, template_folder='templates')
 
@@ -36,6 +37,7 @@ def register():
 
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
+    """ login a user (start session) """
     form = login_form()
     if current_user.is_authenticated:
         return redirect(url_for('auth.dashboard'))
@@ -53,6 +55,7 @@ def login():
             return redirect(url_for('auth.dashboard'))
     return render_template('login.html', form=form)
 
+
 @auth.route("/logout")
 @login_required
 def logout():
@@ -65,15 +68,21 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
-
 @auth.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    """ render dashboard page """
+    userid = current_user.get_id()
+    data = Song.query.filter_by(user_id=userid).all()
+    try:
+        return render_template('dashboard.html', data=data)
+    except TemplateNotFound:
+        abort(404)
 
 
 @auth.route('/profile', methods=['POST', 'GET'])
 def edit_profile():
+    """ allow user to view/update profile """
     user = User.query.get(current_user.get_id())
     form = profile_form(obj=user)
     if form.validate_on_submit():
@@ -87,6 +96,7 @@ def edit_profile():
 
 @auth.route('/account', methods=['POST', 'GET'])
 def edit_account():
+    """ user manages account (password, e-mail) """
     user = User.query.get(current_user.get_id())
     form = security_form(obj=user)
     if form.validate_on_submit():
