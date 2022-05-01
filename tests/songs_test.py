@@ -63,6 +63,33 @@ def test_upload_songs(application, add_db_user_fixture):
     os.remove(upload_file)
 
 
+def test_upload_music_csv(application, add_db_user_fixture):
+    """ upload sample music.csv"""
+    root = config.Config.BASE_DIR
+    filename = 'music.csv'
+    filepath = root + '/../tests/' + filename
+
+    upload_folder = config.Config.UPLOAD_FOLDER
+    upload_file = os.path.join(upload_folder, filename)
+    if os.path.exists(upload_file):
+        os.remove(upload_file)
+
+    with application.test_client(user=add_db_user_fixture) as client:
+        with open(filepath, 'rb') as file:
+            data = {
+                'file': (file, filename),
+                #'csrf_token': current_
+            }
+            resp = client.post('songs/upload', data=data)
+
+    assert resp.status_code == 302
+
+    song1 = Song.query.filter_by(artist="Green Day").first()
+    assert song1.title == "Boulevard of Broken Dreams"
+
+    assert os.path.exists(upload_file)
+    os.remove(upload_file)
+
 
 def test_songs_upload_unauthorized(client):
     """ Route song/upload as unauthorized user """

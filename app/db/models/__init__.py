@@ -30,7 +30,7 @@ class Song(db.Model,SerializerMixin):
     @staticmethod
     def csv_headers():
         """ returns tuple of CSV header """
-        csv_header = ( 'Title', 'Artist', 'Year', 'Genre')
+        csv_header = ( 'Name', 'Artist', 'Year', 'Genre')
         return csv_header
 
 class Location(db.Model, SerializerMixin):
