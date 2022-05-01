@@ -9,6 +9,8 @@
     <p>Welcome: {{ current_user.email }}</p>
     </div>
 
+    <a href="{{ url_for("songs.songs_upload") }}" class="btn col-3 mb-5 btn-info" role="button">Upload Songs</a>
+
     <h2>Browse: Your Songs</h2>
     {{ render_table(data) }}
 
