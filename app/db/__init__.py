@@ -32,4 +32,3 @@ def create_upload_folder():
     # make a directory if it doesn't exist
     if not os.path.exists(uploadfolder):
         os.mkdir(uploadfolder)
-    db.create_all()
